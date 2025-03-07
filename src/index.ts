@@ -7,7 +7,7 @@ import { ConfigManager } from "./config.js";
 import { EckoApi } from "./api.js";
 
 export type StartOptions = {
-  port?: number;
+  port: number;
   logLevel?: LogLevel;
 };
 
@@ -17,6 +17,7 @@ function getStartReturn(
 ): ReturnType<EckoServer["start"]> {
   return {
     ecko: EckoApi(configManager, logger),
+    baseUrl: `http://localhost:${configManager.getConfig().port}`,
   };
 }
 
@@ -24,7 +25,7 @@ function getStart(
   configManager: ConfigManager,
   logger: Logger
 ): EckoServer["start"] {
-  return ({ port = 3002, logLevel = "info" } = {}) => {
+  return ({ port, logLevel = "info" }) => {
     if (configManager.getIsConfigured()) {
       // already started
       return getStartReturn(configManager, logger);
@@ -72,7 +73,7 @@ function getReset(configManager: ConfigManager): EckoServer["reset"] {
 }
 
 export type EckoServer = {
-  start: (options?: StartOptions) => { ecko: EckoApi };
+  start: (options: StartOptions) => { ecko: EckoApi; baseUrl: string };
   stop: () => void;
   reset: () => void;
 };

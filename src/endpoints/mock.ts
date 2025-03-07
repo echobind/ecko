@@ -35,7 +35,7 @@ export const MockEndpoint =
     } else {
       const mockResponse = await getMockResponseSimple(response, req);
 
-      res.status(mockResponse.statusCode ?? 200);
+      res.status(mockResponse.status ?? 200);
 
       if (mockResponse.headers) {
         Object.entries(mockResponse.headers).forEach(([key, value]) => {

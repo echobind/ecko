@@ -2,9 +2,8 @@ import type { Request } from "express";
 import { assertNever } from "./type-witchcraft.js";
 
 export type ResponseFrequency =
-  | {
-      type: "always" | "once";
-    }
+  | "always"
+  | "once"
   | {
       type: "limit";
       limit: number;
@@ -13,7 +12,7 @@ export type ResponseFrequency =
 export type MockResponseSimple = {
   headers?: Record<string, string>;
   /** Assumed to default to 200. */
-  statusCode?: number;
+  status?: number;
   payload?: any;
   /** Called before the response is sent. */
   beforeResponse?: (req: Request) => Promise<void>;
@@ -64,6 +63,21 @@ export function clearResponses(database: Database, route: string) {
   database.responses.delete(normalizeRoute(route));
 }
 
+function getIsAlways(frequency: ResponseFrequency): frequency is "always" {
+  return typeof frequency === "string" && frequency === "always";
+}
+
+function getIsOnce(frequency: ResponseFrequency): frequency is "once" {
+  return typeof frequency === "string" && frequency === "once";
+}
+
+function getIsLimit(frequency: ResponseFrequency): frequency is {
+  type: "limit";
+  limit: number;
+} {
+  return typeof frequency === "object" && frequency.type === "limit";
+}
+
 export function addResponse(
   database: Database,
   route: string,
@@ -72,11 +86,9 @@ export function addResponse(
   let routeResponses = [...getRouteResponses(database, route)];
 
   // it doesn't make sense to have more than one "always" response
-  if (response.frequency.type === "always") {
+  if (getIsAlways(response.frequency)) {
     // remove all other "always" responses
-    routeResponses = routeResponses.filter(
-      (x) => x.frequency.type !== "always"
-    );
+    routeResponses = routeResponses.filter((x) => !getIsAlways(x.frequency));
   }
 
   routeResponses.push(response);
@@ -98,17 +110,15 @@ export function getResponse(database: Database, route: string) {
     return undefined;
   }
 
-  const responseType = response.frequency.type;
-
-  if (responseType === "always") {
+  if (getIsAlways(response.frequency)) {
     return response;
-  } else if (responseType === "once") {
+  } else if (getIsOnce(response.frequency)) {
     // remove the response from the route responses
     routeResponses.pop();
     setRouteResponses(database, route, routeResponses);
 
     return response;
-  } else if (responseType === "limit") {
+  } else if (getIsLimit(response.frequency)) {
     response.frequency.limit--;
 
     if (response.frequency.limit <= 0) {
@@ -119,6 +129,6 @@ export function getResponse(database: Database, route: string) {
 
     return response;
   } else {
-    assertNever(responseType);
+    assertNever(response.frequency);
   }
 }
