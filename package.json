@@ -1,0 +1,34 @@
+{
+  "name": "ecko",
+  "version": "0.0.1",
+  "description": "Mock any API for testing and development.",
+  "license": "MIT",
+  "homepage": "https://github.com/echobind/ecko",
+  "author": "Cully Larson <cully.larson@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/echobind/ecko.git"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.9",
+    "@typescript-eslint/eslint-plugin": "^8.26.0",
+    "eslint": "^9.21.0",
+    "eslint-plugin-no-only-tests": "^3.3.0",
+    "eslint-plugin-prettier": "^5.2.3",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "main": "dist/index.js"
+}

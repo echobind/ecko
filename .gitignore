@@ -1,0 +1,21 @@
+# dependencies
+node_modules
+
+# testing
+
+# tooling
+.turbo
+*.tsbuildinfo
+.vscode
+
+# build
+dist/
+
+# logs
+npm-debug.log*
+
+# secrets
+.env*.local
+
+# misc
+.DS_Store
