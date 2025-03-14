@@ -1,12 +1,13 @@
 import type { Request } from "express";
 import { ConfigManager } from "./config.js";
 
-export type LogLevel = "error" | "warn" | "info";
+export type LogLevel = "error" | "warn" | "info" | "debug";
 
 const logLevelToHierarchy: Record<LogLevel, number> = {
   error: 1,
   warn: 2,
   info: 3,
+  debug: 999,
 };
 
 function doAtLogLevel(

@@ -27,13 +27,13 @@ afterAll(() => {
 });
 
 test("Should register a GET endpoint and respond.", async () => {
-  ecko.register("/test", "get", {
+  ecko.register("/test/endpoint", "get", {
     frequency: "always",
     status: 200,
     payload: "Response from request",
   });
 
-  const response = await fetch(urlJoin(baseUrl, "/test"));
+  const response = await fetch(urlJoin(baseUrl, "/test/endpoint"));
 
   const body = await response.text();
 
@@ -63,7 +63,7 @@ describe("beforeResponse", () => {
   test("Should call beforeResponse", async () => {
     let value = 0;
 
-    ecko.register("/test", "get", {
+    ecko.register("/some/path", "get", {
       frequency: "always",
       status: 200,
       payload: "Response from request",
@@ -72,7 +72,7 @@ describe("beforeResponse", () => {
       },
     });
 
-    const response = await fetch(urlJoin(baseUrl, "/test"));
+    const response = await fetch(urlJoin(baseUrl, "/some/path"));
 
     expect(response.status).toBe(200);
     expect(value).toBe(1);
@@ -81,7 +81,7 @@ describe("beforeResponse", () => {
   test("Should include headers in beforeResponse", async () => {
     let foundHeader = false;
 
-    ecko.register("/test", "get", {
+    ecko.register("/a/b/c", "get", {
       frequency: "always",
       status: 200,
       payload: "Response from request",
@@ -90,14 +90,30 @@ describe("beforeResponse", () => {
       },
     });
 
-    const response = await fetch(urlJoin(baseUrl, "/test"), {
+    await fetch(urlJoin(baseUrl, "/a/b/c"), {
       headers: {
         "X-Test-Header": "test-value",
       },
     });
 
-    expect(response.status).toBe(200);
     expect(foundHeader).toBe(true);
+  });
+
+  test("Should send the correct query params", async () => {
+    let foundPathParam = false;
+
+    ecko.register("/asdf/qwerty/123", "get", {
+      frequency: "always",
+      status: 200,
+      payload: "Response from request",
+      beforeResponse: async ({ queryParams }) => {
+        foundPathParam = queryParams.value === "abcd";
+      },
+    });
+
+    await fetch(urlJoin(baseUrl, "/asdf/qwerty/123?value=abcd"));
+
+    expect(foundPathParam).toBe(true);
   });
 });
 

@@ -14,7 +14,6 @@ function normalizeHeaders(
 export function getCallbackPayload(req: Request): CallbackPayload {
   return {
     headers: normalizeHeaders(req.headers),
-    pathParams: req.params,
     queryParams: req.query,
     body: req.body,
   };

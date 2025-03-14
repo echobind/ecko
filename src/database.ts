@@ -12,7 +12,6 @@ export type ResponseFrequency =
 export type CallbackPayload = {
   /** They header key will always be lowercase. */
   headers: Map<string, string | string[] | undefined>;
-  pathParams: Record<string, string>;
   queryParams: Record<string, unknown>;
   body: Record<string, unknown>;
 };
