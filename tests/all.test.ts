@@ -52,3 +52,20 @@ test("Should register a POST endpoint and respond.", async () => {
 
   expect(body).toEqual({ message: "Some message text" });
 });
+
+test("Should call beforeResponse", async () => {
+  let value = 0;
+
+  ecko.register("/test", "get", {
+    frequency: "always",
+    status: 200,
+    payload: "Response from request",
+    beforeResponse: async () => {
+      value++;
+    },
+  });
+
+  await fetch(urlJoin(baseUrl, "/test"));
+
+  expect(value).toBe(1);
+});
