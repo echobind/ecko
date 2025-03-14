@@ -33,6 +33,7 @@ test("Should register a GET endpoint and respond.", async () => {
 
   const body = await response.text();
 
+  expect(response.status).toBe(200);
   expect(body).toBe("Response from request");
 });
 
@@ -50,6 +51,7 @@ test("Should register a POST endpoint and respond.", async () => {
 
   const body = await response.json();
 
+  expect(response.status).toBe(200);
   expect(body).toEqual({ message: "Some message text" });
 });
 
@@ -65,7 +67,23 @@ test("Should call beforeResponse", async () => {
     },
   });
 
-  await fetch(urlJoin(baseUrl, "/test"));
+  const response = await fetch(urlJoin(baseUrl, "/test"));
 
+  expect(response.status).toBe(200);
   expect(value).toBe(1);
+});
+
+test("Should send back correct status code", async () => {
+  ecko.register("/test", "get", {
+    frequency: "always",
+    status: 510,
+    payload: "Response from request",
+  });
+
+  const response = await fetch(urlJoin(baseUrl, "/test"));
+
+  const body = await response.text();
+
+  expect(response.status).toBe(510);
+  expect(body).toBe("Response from request");
 });

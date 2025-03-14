@@ -20,7 +20,7 @@ export const EckoApi = (
 ): EckoApi => {
   return {
     register: async (route, method, mockResponse) => {
-      logger.info("Registering mock response for route:", route);
+      logger.info(`Registering mock response for: ${method} ${route}`);
 
       const { database } = configManager.getConfig();
 
