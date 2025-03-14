@@ -1,5 +1,6 @@
 import {
   addResponse,
+  normalizeRoute,
   type MockResponse,
   type RequestMethod,
 } from "./database.js";
@@ -20,7 +21,9 @@ export const EckoApi = (
 ): EckoApi => {
   return {
     register: async (route, method, mockResponse) => {
-      logger.info(`Registering mock response for: ${method} ${route}`);
+      logger.info(
+        `Registering mock response for: ${method.toUpperCase()} ${normalizeRoute(route)}`
+      );
 
       const { database } = configManager.getConfig();
 

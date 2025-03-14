@@ -34,7 +34,7 @@ export const MockEndpoint =
     );
 
     if (!response) {
-      logger.warn(`No response found for ${req.path}`);
+      logger.warn(getRequestInfo(req), "No response found.");
 
       res.status(404).send();
       return;

@@ -149,7 +149,7 @@ export function addResponse(
   setRouteResponses(database, route, method, routeResponses);
 }
 
-function normalizeRoute(route: string) {
+export function normalizeRoute(route: string) {
   // make sure the route starts with a slash
   return route.startsWith("/") ? route : `/${route}`;
 }
