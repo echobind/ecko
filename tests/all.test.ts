@@ -22,16 +22,33 @@ afterEach(() => {
   eckoServer.stop();
 });
 
-test("Should register an endpoint and respond.", async () => {
-  ecko.register("/test", {
+test("Should register a GET endpoint and respond.", async () => {
+  ecko.register("/test", "get", {
     frequency: "always",
     status: 200,
-    payload: "Hello, world!",
+    payload: "Response from request",
   });
 
   const response = await fetch(urlJoin(baseUrl, "/test"));
 
   const body = await response.text();
 
-  expect(body).toBe("Hello, world!");
+  expect(body).toBe("Response from request");
+});
+
+test("Should register a POST endpoint and respond.", async () => {
+  ecko.register("/path/to/endpoint", "post", {
+    frequency: "always",
+    status: 200,
+    payload: JSON.stringify({ message: "Some message text" }),
+  });
+
+  const response = await fetch(urlJoin(baseUrl, "/path/to/endpoint"), {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+
+  const body = await response.json();
+
+  expect(body).toEqual({ message: "Some message text" });
 });

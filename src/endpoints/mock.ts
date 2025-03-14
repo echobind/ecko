@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import {
   getResponse,
+  guardRequestMethod,
   type MockResponse,
   type MockResponseSimple,
 } from "../database.js";
@@ -26,7 +27,11 @@ export const MockEndpoint =
 
     logger.info(getRequestInfo(req), "Mock endpoint called.");
 
-    const response = getResponse(database, req.path);
+    const response = getResponse(
+      database,
+      req.path,
+      guardRequestMethod(req.method)
+    );
 
     if (!response) {
       logger.warn(`No response found for ${req.path}`);

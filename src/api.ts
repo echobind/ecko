@@ -1,9 +1,17 @@
-import { addResponse, type MockResponse } from "./database.js";
+import {
+  addResponse,
+  type MockResponse,
+  type RequestMethod,
+} from "./database.js";
 import { ConfigManager } from "./config.js";
 import { Logger } from "./log.js";
 
 export type EckoApi = {
-  register: (route: string, mockResponse: MockResponse) => Promise<void>;
+  register: (
+    route: string,
+    method: RequestMethod,
+    mockResponse: MockResponse
+  ) => Promise<void>;
 };
 
 export const EckoApi = (
@@ -11,12 +19,12 @@ export const EckoApi = (
   logger: Logger
 ): EckoApi => {
   return {
-    register: async (route: string, mockResponse: MockResponse) => {
+    register: async (route, method, mockResponse) => {
       logger.info("Registering mock response for route:", route);
 
       const { database } = configManager.getConfig();
 
-      addResponse(database, route, mockResponse);
+      addResponse(database, route, method, mockResponse);
     },
   };
 };

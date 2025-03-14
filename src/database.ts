@@ -16,7 +16,31 @@ export type CallbackPayload = {
   body: Record<string, unknown>;
 };
 
+const requestMethods = [
+  "GET",
+  "get",
+  "POST",
+  "post",
+  "PUT",
+  "put",
+  "PATCH",
+  "patch",
+  "DELETE",
+  "delete",
+  "HEAD",
+  "head",
+  "OPTIONS",
+  "options",
+  "TRACE",
+  "trace",
+  "CONNECT",
+  "connect",
+] as const;
+
+export type RequestMethod = (typeof requestMethods)[number];
+
 export type MockResponseSimple = {
+  method?: RequestMethod;
   headers?: Record<string, string>;
   /** Assumed to default to 200. */
   status?: number;
@@ -48,26 +72,47 @@ export type Database = {
   >;
 };
 
+function getDatabaseKey(route: string, method: RequestMethod) {
+  return `${normalizeRoute(route)}:${method.toLowerCase()}`;
+}
+
+export function guardRequestMethod(method: string): RequestMethod {
+  if (requestMethods.includes(method as RequestMethod)) {
+    return method as RequestMethod;
+  } else {
+    throw new Error(`Invalid request method: ${method}`);
+  }
+}
+
 export function createDatabase(): Database {
   return {
     responses: new Map(),
   };
 }
 
-function getRouteResponses(database: Database, route: string) {
-  return database.responses.get(normalizeRoute(route)) ?? [];
+function getRouteResponses(
+  database: Database,
+  route: string,
+  method: RequestMethod
+) {
+  return database.responses.get(getDatabaseKey(route, method)) ?? [];
 }
 
 function setRouteResponses(
   database: Database,
   route: string,
+  method: RequestMethod,
   responses: MockResponse[]
 ) {
-  database.responses.set(normalizeRoute(route), responses);
+  database.responses.set(getDatabaseKey(route, method), responses);
 }
 
-export function clearResponses(database: Database, route: string) {
-  database.responses.delete(normalizeRoute(route));
+export function clearResponses(
+  database: Database,
+  route: string,
+  method: RequestMethod
+) {
+  database.responses.delete(getDatabaseKey(route, method));
 }
 
 function getIsAlways(frequency: ResponseFrequency): frequency is "always" {
@@ -88,9 +133,10 @@ function getIsLimit(frequency: ResponseFrequency): frequency is {
 export function addResponse(
   database: Database,
   route: string,
+  method: RequestMethod,
   response: MockResponse
 ) {
-  let routeResponses = [...getRouteResponses(database, route)];
+  let routeResponses = [...getRouteResponses(database, route, method)];
 
   // it doesn't make sense to have more than one "always" response
   if (getIsAlways(response.frequency)) {
@@ -100,7 +146,7 @@ export function addResponse(
 
   routeResponses.push(response);
 
-  setRouteResponses(database, route, routeResponses);
+  setRouteResponses(database, route, method, routeResponses);
 }
 
 function normalizeRoute(route: string) {
@@ -108,8 +154,12 @@ function normalizeRoute(route: string) {
   return route.startsWith("/") ? route : `/${route}`;
 }
 
-export function getResponse(database: Database, route: string) {
-  const routeResponses = getRouteResponses(database, route);
+export function getResponse(
+  database: Database,
+  route: string,
+  method: RequestMethod
+) {
+  const routeResponses = getRouteResponses(database, route, method);
 
   const response = routeResponses[routeResponses.length - 1];
 
@@ -122,7 +172,7 @@ export function getResponse(database: Database, route: string) {
   } else if (getIsOnce(response.frequency)) {
     // remove the response from the route responses
     routeResponses.pop();
-    setRouteResponses(database, route, routeResponses);
+    setRouteResponses(database, route, method, routeResponses);
 
     return response;
   } else if (getIsLimit(response.frequency)) {
@@ -131,7 +181,7 @@ export function getResponse(database: Database, route: string) {
     if (response.frequency.limit <= 0) {
       // no responses left for this one, remove it from the route responses
       routeResponses.pop();
-      setRouteResponses(database, route, routeResponses);
+      setRouteResponses(database, route, method, routeResponses);
     }
 
     return response;
