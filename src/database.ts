@@ -47,6 +47,8 @@ export type MockResponseSimple = {
   payload?: any;
   /** Called before the response is sent. */
   beforeResponse?: (args: CallbackPayload) => Promise<void>;
+  /** Called after the response is sent. */
+  afterResponse?: (args: CallbackPayload) => Promise<void>;
 };
 
 export type MockResponse =

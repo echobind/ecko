@@ -56,6 +56,13 @@ export const MockEndpoint =
       }
 
       res.send(mockResponse.payload);
+
+      if (mockResponse.afterResponse) {
+        logger.info(getRequestInfo(req), "Calling afterResponse.");
+
+        await mockResponse.afterResponse(getCallbackPayload(req));
+      }
+
       return;
     }
   };

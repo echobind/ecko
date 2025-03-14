@@ -99,7 +99,7 @@ describe("beforeResponse", () => {
     expect(foundHeader).toBe(true);
   });
 
-  test("Should send the correct query params", async () => {
+  test("Should include query params in beforeResponse", async () => {
     let foundPathParam = false;
 
     ecko.register("/asdf/qwerty/123", "get", {
@@ -107,6 +107,72 @@ describe("beforeResponse", () => {
       status: 200,
       payload: "Response from request",
       beforeResponse: async ({ queryParams }) => {
+        foundPathParam = queryParams.value === "abcd";
+      },
+    });
+
+    await fetch(urlJoin(baseUrl, "/asdf/qwerty/123?value=abcd"));
+
+    expect(foundPathParam).toBe(true);
+  });
+});
+
+describe("afterResponse", () => {
+  test("Should call afterResponse", async () => {
+    let value = 0;
+    let valueAsExpected = false;
+
+    ecko.register("/some/path", "get", {
+      frequency: "always",
+      status: 200,
+      payload: "Response from request",
+      beforeResponse: async () => {
+        // make sure afterResponse hasn't been called yet
+        if (value === 0) {
+          valueAsExpected = true;
+        }
+      },
+      afterResponse: async () => {
+        value++;
+      },
+    });
+
+    const response = await fetch(urlJoin(baseUrl, "/some/path"));
+
+    expect(response.status).toBe(200);
+    expect(value).toBe(1);
+    expect(valueAsExpected).toBe(true);
+  });
+
+  test("Should include headers in afterResponse", async () => {
+    let foundHeader = false;
+
+    ecko.register("/a/b/c", "get", {
+      frequency: "always",
+      status: 200,
+      payload: "Response from request",
+      afterResponse: async ({ headers }) => {
+        foundHeader = headers.get("x-test-header") === "test-value";
+      },
+    });
+
+    await fetch(urlJoin(baseUrl, "/a/b/c"), {
+      headers: {
+        "X-Test-Header": "test-value",
+      },
+    });
+
+    expect(foundHeader).toBe(true);
+  });
+
+  test("Should include query params in afterResponse", async () => {
+    let foundPathParam = false;
+
+    ecko.register("/asdf/qwerty/123", "get", {
+      frequency: "always",
+      status: 200,
+      payload: "Response from request",
+      afterResponse: async ({ queryParams }) => {
         foundPathParam = queryParams.value === "abcd";
       },
     });
