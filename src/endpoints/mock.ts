@@ -6,6 +6,7 @@ import {
 } from "../database.js";
 import { getRequestInfo, Logger } from "../log.js";
 import type { ConfigManager } from "../config.js";
+import { getCallbackPayload } from "../adapters/express.js";
 
 async function getMockResponseSimple(
   response: MockResponse,
@@ -46,7 +47,7 @@ export const MockEndpoint =
       if (mockResponse.beforeResponse) {
         logger.info(getRequestInfo(req), "Calling beforeResponse.");
 
-        await mockResponse.beforeResponse(req);
+        await mockResponse.beforeResponse(getCallbackPayload(req));
       }
 
       res.send(mockResponse.payload);

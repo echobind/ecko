@@ -9,13 +9,20 @@ export type ResponseFrequency =
       limit: number;
     };
 
+export type CallbackPayload = {
+  headers: Record<string, string | string[] | undefined>;
+  pathParams: Record<string, string>;
+  queryParams: Record<string, unknown>;
+  body: Record<string, unknown>;
+};
+
 export type MockResponseSimple = {
   headers?: Record<string, string>;
   /** Assumed to default to 200. */
   status?: number;
   payload?: any;
   /** Called before the response is sent. */
-  beforeResponse?: (req: Request) => Promise<void>;
+  beforeResponse?: (args: CallbackPayload) => Promise<void>;
 };
 
 export type MockResponse =
