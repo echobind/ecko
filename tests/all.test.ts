@@ -1,4 +1,4 @@
-import { test, expect, afterAll, beforeAll, afterEach } from "vitest";
+import { test, describe, expect, afterAll, beforeAll, afterEach } from "vitest";
 import urlJoin from "url-join";
 import { EckoServer } from "../src/index.js";
 import { type EckoApi } from "../src/api.js";
@@ -12,7 +12,7 @@ let baseUrl: string;
 beforeAll(() => {
   eckoServer = EckoServer();
 
-  const startResult = eckoServer.start({ port: PORT });
+  const startResult = eckoServer.start({ port: PORT, logLevel: "error" });
 
   ecko = startResult.ecko;
   baseUrl = startResult.baseUrl;
@@ -59,22 +59,46 @@ test("Should register a POST endpoint and respond.", async () => {
   expect(body).toEqual({ message: "Some message text" });
 });
 
-test("Should call beforeResponse", async () => {
-  let value = 0;
+describe("beforeResponse", () => {
+  test("Should call beforeResponse", async () => {
+    let value = 0;
 
-  ecko.register("/test", "get", {
-    frequency: "always",
-    status: 200,
-    payload: "Response from request",
-    beforeResponse: async () => {
-      value++;
-    },
+    ecko.register("/test", "get", {
+      frequency: "always",
+      status: 200,
+      payload: "Response from request",
+      beforeResponse: async () => {
+        value++;
+      },
+    });
+
+    const response = await fetch(urlJoin(baseUrl, "/test"));
+
+    expect(response.status).toBe(200);
+    expect(value).toBe(1);
   });
 
-  const response = await fetch(urlJoin(baseUrl, "/test"));
+  test("Should include headers in beforeResponse", async () => {
+    let foundHeader = false;
 
-  expect(response.status).toBe(200);
-  expect(value).toBe(1);
+    ecko.register("/test", "get", {
+      frequency: "always",
+      status: 200,
+      payload: "Response from request",
+      beforeResponse: async ({ headers }) => {
+        foundHeader = headers.get("x-test-header") === "test-value";
+      },
+    });
+
+    const response = await fetch(urlJoin(baseUrl, "/test"), {
+      headers: {
+        "X-Test-Header": "test-value",
+      },
+    });
+
+    expect(response.status).toBe(200);
+    expect(foundHeader).toBe(true);
+  });
 });
 
 test("Should send back correct status code", async () => {
@@ -143,4 +167,26 @@ test("Should respond a limited number of times", async () => {
   expect(await responses[5].text()).toBe("");
   expect(responses[6].status).toBe(404);
   expect(await responses[6].text()).toBe("");
+});
+
+test("Should send the correct headers.", async () => {
+  ecko.register("/path/to/endpoint", "put", {
+    frequency: "always",
+    status: 200,
+    payload: JSON.stringify({ message: "Some message text" }),
+    headers: {
+      "X-Test-Header": "test-value",
+    },
+  });
+
+  const response = await fetch(urlJoin(baseUrl, "/path/to/endpoint"), {
+    method: "PUT",
+    body: JSON.stringify({}),
+  });
+
+  const body = await response.json();
+
+  expect(response.status).toBe(200);
+  expect(body).toEqual({ message: "Some message text" });
+  expect(response.headers.get("X-Test-Header")).toBe("test-value");
 });
