@@ -2,4 +2,4 @@
 "ecko": patch
 ---
 
-Initial release
+feat: Initial release.
