@@ -13,6 +13,7 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest run --no-file-parallelism",
+    "test:watch": "vitest --no-file-parallelism",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "check-exports": "attw --pack ."

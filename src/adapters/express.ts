@@ -1,5 +1,5 @@
 import { type Request } from "express";
-import type { CallbackPayload } from "../database.js";
+import type { CallbackPayload, LowerCaseRequestMethod } from "../database.js";
 
 function normalizeHeaders(
   headers: Record<string, string | string[] | undefined>
@@ -13,6 +13,7 @@ function normalizeHeaders(
 
 export function getCallbackPayload(req: Request): CallbackPayload {
   return {
+    method: req.method.toLowerCase() as LowerCaseRequestMethod,
     headers: normalizeHeaders(req.headers),
     queryParams: req.query,
     body: req.body,

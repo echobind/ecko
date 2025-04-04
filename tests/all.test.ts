@@ -261,3 +261,99 @@ test("Should send the correct headers.", async () => {
   expect(body).toEqual({ message: "Some message text" });
   expect(response.headers.get("X-Test-Header")).toBe("test-value");
 });
+
+describe("With query params", () => {
+  test("Should match routes with query params", async () => {
+    ecko.register("/test?paramZ=valueZ&paramA=valueA", "get", {
+      frequency: "always",
+      payload: "Response from request",
+    });
+
+    const response = await fetch(
+      urlJoin(baseUrl, "/test?paramA=valueA&paramZ=valueZ")
+    );
+
+    const body = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(body).toBe("Response from request");
+  });
+
+  test("Should not match routes without query params", async () => {
+    ecko.register("/test?paramZ=valueZ&paramA=valueA", "get", {
+      frequency: "always",
+      payload: "Response from request",
+    });
+
+    const response = await fetch(urlJoin(baseUrl, "/test"));
+
+    expect(response.status).toBe(404);
+  });
+
+  test("Should not match routes with different query params", async () => {
+    ecko.register("/test?paramZ=valueZ&paramA=valueA", "get", {
+      frequency: "always",
+      payload: "Response from request",
+    });
+
+    const response = await fetch(
+      urlJoin(baseUrl, "/test?paramZ=valueY&paramA=valueA")
+    );
+
+    expect(response.status).toBe(404);
+  });
+
+  test("Routes without query params should match routes with query params", async () => {
+    ecko.register("/test", "get", {
+      frequency: "always",
+      payload: "Response from request",
+    });
+
+    const response = await fetch(
+      urlJoin(baseUrl, "/test?paramA=valueA&paramZ=valueZ")
+    );
+
+    const body = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(body).toBe("Response from request");
+  });
+
+  test("Multiple routes with the same path, one with query params and one without, should fall back to the route without query params for a query without query params", async () => {
+    ecko.register("/test?paramA=valueA", "get", {
+      frequency: "always",
+      payload: "Response from request A",
+    });
+
+    ecko.register("/test", "get", {
+      frequency: "always",
+      payload: "Response from request B",
+    });
+
+    const response = await fetch(urlJoin(baseUrl, "/test"));
+
+    const body = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(body).toBe("Response from request B");
+  });
+
+  test("Multiple routes with the same path, one with query params and one without, should fall back to the route without query params for a query with differrent query params", async () => {
+    ecko.register("/test?paramA=valueA", "get", {
+      frequency: "always",
+      payload: "Response from request A",
+    });
+
+    ecko.register("/test", "get", {
+      frequency: "always",
+      payload: "Response from request B",
+    });
+
+    const response = await fetch(urlJoin(baseUrl, "/test?paramA=valueB"));
+
+    const body = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(body).toBe("Response from request B");
+  });
+});

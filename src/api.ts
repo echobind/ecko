@@ -1,6 +1,6 @@
 import {
   addResponse,
-  normalizeRoute,
+  normalizeRoutePath,
   type MockResponse,
   type RequestMethod,
 } from "./database.js";
@@ -9,6 +9,10 @@ import { Logger } from "./log.js";
 
 export type EckoApi = {
   register: (
+    /**
+     * If the route includes query parameters, then the route will only match
+     * if the query parameters in the request are exactly the same.
+     */
     route: string,
     method: RequestMethod,
     mockResponse: MockResponse
@@ -22,7 +26,7 @@ export const EckoApi = (
   return {
     register: async (route, method, mockResponse) => {
       logger.info(
-        `Registering mock response for: ${method.toUpperCase()} ${normalizeRoute(route)}`
+        `Registering mock response for: ${method.toUpperCase()} ${normalizeRoutePath(route)}`
       );
 
       const { database } = configManager.getConfig();

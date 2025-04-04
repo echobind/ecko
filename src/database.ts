@@ -1,4 +1,3 @@
-import type { Request } from "express";
 import { assertNever } from "./type-witchcraft.js";
 
 export type ResponseFrequency =
@@ -10,33 +9,44 @@ export type ResponseFrequency =
     };
 
 export type CallbackPayload = {
+  method: LowerCaseRequestMethod;
   /** They header key will always be lowercase. */
   headers: Map<string, string | string[] | undefined>;
   queryParams: Record<string, unknown>;
   body: Record<string, unknown>;
 };
 
-const requestMethods = [
-  "GET",
+const lowercaseRequestMethods = [
   "get",
-  "POST",
   "post",
-  "PUT",
   "put",
-  "PATCH",
   "patch",
-  "DELETE",
   "delete",
-  "HEAD",
   "head",
-  "OPTIONS",
   "options",
-  "TRACE",
   "trace",
-  "CONNECT",
   "connect",
 ] as const;
 
+const uppercaseRequestMethods = [
+  "GET",
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE",
+  "HEAD",
+  "OPTIONS",
+  "TRACE",
+  "CONNECT",
+] as const;
+
+const requestMethods = [
+  ...lowercaseRequestMethods,
+  ...uppercaseRequestMethods,
+] as const;
+
+export type LowerCaseRequestMethod = (typeof lowercaseRequestMethods)[number];
+export type UpperCaseRequestMethod = (typeof uppercaseRequestMethods)[number];
 export type RequestMethod = (typeof requestMethods)[number];
 
 export type MockResponseSimple = {
@@ -58,7 +68,7 @@ export type MockResponse =
   | {
       frequency: ResponseFrequency;
       /** Dynamically generate the response. */
-      getResponse: (req: Request) => Promise<MockResponseSimple>;
+      getResponse: (args: CallbackPayload) => Promise<MockResponseSimple>;
     };
 
 export type Database = {
@@ -74,8 +84,26 @@ export type Database = {
   >;
 };
 
-function getDatabaseKey(route: string, method: RequestMethod) {
-  return `${normalizeRoute(route)}:${method.toLowerCase()}`;
+function getQueryParamsKey(queryParams: Record<string, unknown>): string {
+  const sortedQueryParams = Object.fromEntries(
+    Object.entries(queryParams).sort(([keyA], [keyB]) =>
+      keyA.localeCompare(keyB)
+    )
+  );
+
+  return JSON.stringify(sortedQueryParams);
+}
+
+function getDatabaseKey(route: Route, method: RequestMethod) {
+  const path = typeof route === "string" ? route : route.path;
+
+  const pathKey = `${normalizeRoutePath(path)}:${method.toLowerCase()}`;
+
+  if (typeof route === "string") {
+    return pathKey;
+  } else {
+    return `${pathKey}:${getQueryParamsKey(route.queryParams)}`;
+  }
 }
 
 export function guardRequestMethod(method: string): RequestMethod {
@@ -94,27 +122,33 @@ export function createDatabase(): Database {
 
 function getRouteResponses(
   database: Database,
-  route: string,
+  route: Route,
   method: RequestMethod
 ) {
-  return database.responses.get(getDatabaseKey(route, method)) ?? [];
+  if (typeof route === "string") {
+    return database.responses.get(getDatabaseKey(route, method)) ?? [];
+  } else {
+    // first check if there's an exact match with the query params
+    const responsesWithQuery = database.responses.get(
+      getDatabaseKey(route, method)
+    );
+
+    if (responsesWithQuery) {
+      return responsesWithQuery;
+    } else {
+      // if there's no exact match, check if there's a match without query params
+      return database.responses.get(getDatabaseKey(route.path, method)) ?? [];
+    }
+  }
 }
 
 function setRouteResponses(
   database: Database,
-  route: string,
+  route: Route,
   method: RequestMethod,
   responses: MockResponse[]
 ) {
   database.responses.set(getDatabaseKey(route, method), responses);
-}
-
-export function clearResponses(
-  database: Database,
-  route: string,
-  method: RequestMethod
-) {
-  database.responses.delete(getDatabaseKey(route, method));
 }
 
 function getIsAlways(frequency: ResponseFrequency): frequency is "always" {
@@ -132,12 +166,30 @@ function getIsLimit(frequency: ResponseFrequency): frequency is {
   return typeof frequency === "object" && frequency.type === "limit";
 }
 
+type Route = string | { path: string; queryParams: Record<string, unknown> };
+
+function getRouteFromString(routeString: string): Route {
+  const bits = routeString.split("?");
+  const path = bits[0] ?? "";
+  const queryParamsString = bits[1] ?? "";
+
+  const queryParams = new URLSearchParams(queryParamsString);
+
+  if (queryParams.size === 0) {
+    return path;
+  } else {
+    return { path, queryParams: Object.fromEntries(queryParams.entries()) };
+  }
+}
+
 export function addResponse(
   database: Database,
-  route: string,
+  routeStr: string,
   method: RequestMethod,
   response: MockResponse
 ) {
+  const route = getRouteFromString(routeStr);
+
   let routeResponses = [...getRouteResponses(database, route, method)];
 
   // it doesn't make sense to have more than one "always" response
@@ -151,14 +203,14 @@ export function addResponse(
   setRouteResponses(database, route, method, routeResponses);
 }
 
-export function normalizeRoute(route: string) {
+export function normalizeRoutePath(routePath: string) {
   // make sure the route starts with a slash
-  return route.startsWith("/") ? route : `/${route}`;
+  return routePath.startsWith("/") ? routePath : `/${routePath}`;
 }
 
 export function getResponse(
   database: Database,
-  route: string,
+  route: Route,
   method: RequestMethod
 ) {
   const routeResponses = getRouteResponses(database, route, method);

@@ -14,7 +14,7 @@ async function getMockResponseSimple(
   req: Request
 ): Promise<MockResponseSimple> {
   if ("getResponse" in response) {
-    return await response.getResponse(req);
+    return await response.getResponse(getCallbackPayload(req));
   } else {
     return response;
   }
@@ -29,7 +29,7 @@ export const MockEndpoint =
 
     const response = getResponse(
       database,
-      req.path,
+      { path: req.path, queryParams: req.query },
       guardRequestMethod(req.method)
     );
 

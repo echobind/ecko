@@ -12,6 +12,3 @@ npm install ecko
 
 - [ ] Add docs
 - [ ] Add examples
-- [ ] Consider supporting an "all" request method. This could make response
-      frequency unpredictable. Also, you should know the request method for the
-      endpoint; why would you need "all?
