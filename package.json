@@ -1,6 +1,6 @@
 {
   "name": "ecko",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Mock any API for testing and development.",
   "license": "MIT",
   "homepage": "https://github.com/echobind/ecko",
