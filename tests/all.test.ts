@@ -29,7 +29,6 @@ afterAll(() => {
 test("Should register a GET endpoint and respond.", async () => {
   ecko.register("/test/endpoint", "get", {
     frequency: "always",
-    status: 200,
     payload: "Response from request",
   });
 
@@ -44,7 +43,6 @@ test("Should register a GET endpoint and respond.", async () => {
 test("Should register a POST endpoint and respond.", async () => {
   ecko.register("/path/to/endpoint", "post", {
     frequency: "always",
-    status: 200,
     payload: JSON.stringify({ message: "Some message text" }),
   });
 
@@ -65,7 +63,6 @@ describe("beforeResponse", () => {
 
     ecko.register("/some/path", "get", {
       frequency: "always",
-      status: 200,
       payload: "Response from request",
       beforeResponse: async () => {
         value++;
@@ -83,7 +80,6 @@ describe("beforeResponse", () => {
 
     ecko.register("/a/b/c", "get", {
       frequency: "always",
-      status: 200,
       payload: "Response from request",
       beforeResponse: async ({ headers }) => {
         foundHeader = headers.get("x-test-header") === "test-value";
@@ -104,7 +100,6 @@ describe("beforeResponse", () => {
 
     ecko.register("/asdf/qwerty/123", "get", {
       frequency: "always",
-      status: 200,
       payload: "Response from request",
       beforeResponse: async ({ queryParams }) => {
         foundPathParam = queryParams.value === "abcd";
@@ -124,7 +119,6 @@ describe("afterResponse", () => {
 
     ecko.register("/some/path", "get", {
       frequency: "always",
-      status: 200,
       payload: "Response from request",
       beforeResponse: async () => {
         // make sure afterResponse hasn't been called yet
@@ -149,7 +143,6 @@ describe("afterResponse", () => {
 
     ecko.register("/a/b/c", "get", {
       frequency: "always",
-      status: 200,
       payload: "Response from request",
       afterResponse: async ({ headers }) => {
         foundHeader = headers.get("x-test-header") === "test-value";
@@ -170,7 +163,6 @@ describe("afterResponse", () => {
 
     ecko.register("/asdf/qwerty/123", "get", {
       frequency: "always",
-      status: 200,
       payload: "Response from request",
       afterResponse: async ({ queryParams }) => {
         foundPathParam = queryParams.value === "abcd";
@@ -201,7 +193,6 @@ test("Should send back correct status code", async () => {
 test("Should only respond once", async () => {
   ecko.register("/test", "get", {
     frequency: "once",
-    status: 200,
     payload: "Response from request",
   });
 
@@ -224,7 +215,6 @@ test("Should respond a limited number of times", async () => {
       type: "limit",
       limit: 5,
     },
-    status: 200,
     payload: "Response from request",
   });
 
@@ -254,7 +244,6 @@ test("Should respond a limited number of times", async () => {
 test("Should send the correct headers.", async () => {
   ecko.register("/path/to/endpoint", "put", {
     frequency: "always",
-    status: 200,
     payload: JSON.stringify({ message: "Some message text" }),
     headers: {
       "X-Test-Header": "test-value",
