@@ -2,6 +2,12 @@
   "name": "ecko",
   "version": "0.0.3",
   "description": "Mock any API for testing and development.",
+  "keywords": [
+    "mock",
+    "api",
+    "testing",
+    "development"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/echobind/ecko",
   "author": "Cully Larson <cully.larson@gmail.com>",
