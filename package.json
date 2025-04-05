@@ -49,5 +49,10 @@
       "import": "./dist/index.js",
       "default": "./dist/index.cjs"
     }
-  }
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "LICENSE"
+  ]
 }
