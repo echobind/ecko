@@ -1,7 +1,6 @@
 import { test, describe, expect, afterAll, beforeAll, afterEach } from "vitest";
 import urlJoin from "url-join";
-import { EckoServer } from "../src/index.js";
-import { type EckoApi } from "../src/api.js";
+import { EckoServer, type EckoApi } from "../src/index.js";
 
 const PORT = 3005;
 

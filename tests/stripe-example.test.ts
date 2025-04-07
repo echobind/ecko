@@ -1,7 +1,6 @@
 import { test, expect, afterAll, beforeAll, afterEach } from "vitest";
 import { Stripe } from "stripe";
-import { EckoServer } from "../src/index.js";
-import { type EckoApi } from "../src/api.js";
+import { EckoServer, type EckoApi } from "../src/index.js";
 
 const PORT = 3005;
 
