@@ -1,5 +1,11 @@
 # ecko
 
+## 0.0.8
+
+### Patch Changes
+
+- ea94166: Run build before publish.
+
 ## 0.0.7
 
 ### Patch Changes
