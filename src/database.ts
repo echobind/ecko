@@ -49,7 +49,7 @@ export type LowerCaseRequestMethod = (typeof lowercaseRequestMethods)[number];
 export type UpperCaseRequestMethod = (typeof uppercaseRequestMethods)[number];
 export type RequestMethod = (typeof requestMethods)[number];
 
-export type MockResponseSimple = {
+export type EckoResponseSimple = {
   method?: RequestMethod;
   headers?: Record<string, string>;
   /** Assumed to default to 200. */
@@ -61,14 +61,14 @@ export type MockResponseSimple = {
   afterResponse?: (args: CallbackPayload) => Promise<void>;
 };
 
-export type MockResponse =
+export type EckoResponse =
   | ({
       frequency: ResponseFrequency;
-    } & MockResponseSimple)
+    } & EckoResponseSimple)
   | {
       frequency: ResponseFrequency;
       /** Dynamically generate the response. */
-      getResponse: (args: CallbackPayload) => Promise<MockResponseSimple>;
+      getResponse: (args: CallbackPayload) => Promise<EckoResponseSimple>;
     };
 
 export type Database = {
@@ -80,7 +80,7 @@ export type Database = {
      * the next response will be used on the next call. In this way, you can build up
      * responses for a route and they will be used in order.
      */
-    MockResponse[]
+    EckoResponse[]
   >;
 };
 
@@ -146,7 +146,7 @@ function setRouteResponses(
   database: Database,
   route: Route,
   method: RequestMethod,
-  responses: MockResponse[]
+  responses: EckoResponse[]
 ) {
   database.responses.set(getDatabaseKey(route, method), responses);
 }
@@ -186,7 +186,7 @@ export function addResponse(
   database: Database,
   routeStr: string,
   method: RequestMethod,
-  response: MockResponse
+  response: EckoResponse
 ) {
   const route = getRouteFromString(routeStr);
 

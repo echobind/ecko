@@ -2,17 +2,17 @@ import type { Request, Response } from "express";
 import {
   getResponse,
   guardRequestMethod,
-  type MockResponse,
-  type MockResponseSimple,
+  type EckoResponse,
+  type EckoResponseSimple,
 } from "../database.js";
 import { getRequestInfo, Logger } from "../log.js";
 import type { ConfigManager } from "../config.js";
 import { getCallbackPayload } from "../adapters/express.js";
 
-async function getMockResponseSimple(
-  response: MockResponse,
+async function getEckoResponseSimple(
+  response: EckoResponse,
   req: Request
-): Promise<MockResponseSimple> {
+): Promise<EckoResponseSimple> {
   if ("getResponse" in response) {
     return await response.getResponse(getCallbackPayload(req));
   } else {
@@ -39,7 +39,7 @@ export const MockEndpoint =
       res.status(404).send();
       return;
     } else {
-      const mockResponse = await getMockResponseSimple(response, req);
+      const mockResponse = await getEckoResponseSimple(response, req);
 
       res.status(mockResponse.status ?? 200);
 

@@ -1,7 +1,7 @@
 import {
   addResponse,
   normalizeRoutePath,
-  type MockResponse,
+  type EckoResponse,
   type RequestMethod,
 } from "./database.js";
 import { ConfigManager } from "./config.js";
@@ -15,7 +15,7 @@ export type EckoApi = {
      */
     route: string,
     method: RequestMethod,
-    mockResponse: MockResponse
+    mockResponse: EckoResponse
   ) => Promise<void>;
 };
 
