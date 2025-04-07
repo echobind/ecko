@@ -1,5 +1,11 @@
 # ecko
 
+## 0.0.7
+
+### Patch Changes
+
+- 5c5d3a3: Export more types.
+
 ## 0.0.6
 
 ### Patch Changes
