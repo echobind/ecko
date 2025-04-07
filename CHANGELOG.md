@@ -1,5 +1,11 @@
 # ecko
 
+## 0.0.5
+
+### Patch Changes
+
+- 0a3c19b: Try to export EckoApi type again.
+
 ## 0.0.4
 
 ### Patch Changes
