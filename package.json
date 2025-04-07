@@ -24,7 +24,7 @@
     "lint": "eslint .",
     "check-exports": "attw --pack .",
     "all-checks": "npm run check-exports && npm run typecheck && npm run lint && npm run test",
-    "prepublishOnly": "npm run all-checks",
+    "prepublishOnly": "npm run build && npm run all-checks",
     "local-release": "changeset version && changeset publish"
   },
   "devDependencies": {
