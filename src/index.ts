@@ -1,12 +1,12 @@
 import express from "express";
 import cors from "cors";
-import { createDatabase } from "./database.js";
+import { createDatabase, type ResponseFrequency } from "./database.js";
 import { Logger, type LogLevel } from "./log.js";
 import { MockEndpoint } from "./endpoints/mock.js";
 import { ConfigManager } from "./config.js";
 import { EckoApi } from "./api.js";
 
-export { type EckoApi };
+export type { EckoApi, ResponseFrequency };
 
 export type StartOptions = {
   port: number;
