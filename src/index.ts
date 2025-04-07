@@ -6,7 +6,7 @@ import { MockEndpoint } from "./endpoints/mock.js";
 import { ConfigManager } from "./config.js";
 import { EckoApi } from "./api.js";
 
-export { EckoApi };
+export { type EckoApi };
 
 export type StartOptions = {
   port: number;
