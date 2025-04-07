@@ -1,5 +1,0 @@
----
-"ecko": patch
----
-
-Export ResponseFrequency.

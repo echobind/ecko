@@ -1,5 +1,11 @@
 # ecko
 
+## 0.0.6
+
+### Patch Changes
+
+- 23fb3de: Export ResponseFrequency.
+
 ## 0.0.5
 
 ### Patch Changes
