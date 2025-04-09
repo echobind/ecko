@@ -1,5 +1,11 @@
 # ecko
 
+## 0.0.9
+
+### Patch Changes
+
+- 5005e08: fix: Trailing slash should be ignored.
+
 ## 0.0.8
 
 ### Patch Changes
