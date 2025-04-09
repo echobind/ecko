@@ -205,7 +205,11 @@ export function addResponse(
 
 export function normalizeRoutePath(routePath: string) {
   // make sure the route starts with a slash
-  return routePath.startsWith("/") ? routePath : `/${routePath}`;
+  return (
+    (routePath.startsWith("/") ? routePath : `/${routePath}`)
+      // remove trailing slash
+      .replace(/\/$/, "")
+  );
 }
 
 export function getResponse(

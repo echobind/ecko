@@ -39,6 +39,48 @@ test("Should register a GET endpoint and respond.", async () => {
   expect(body).toBe("Response from request");
 });
 
+test("Should work with or without a leading slash", async () => {
+  ecko.register("test/endpoint", "get", {
+    frequency: "always",
+    payload: "Response from request",
+  });
+
+  const response1 = await fetch(urlJoin(baseUrl, "/test/endpoint"));
+
+  const body1 = await response1.text();
+
+  expect(response1.status).toBe(200);
+  expect(body1).toBe("Response from request");
+
+  const response2 = await fetch(urlJoin(baseUrl, "test/endpoint"));
+
+  const body2 = await response2.text();
+
+  expect(response2.status).toBe(200);
+  expect(body2).toBe("Response from request");
+});
+
+test("Should work with or without a trailing slash", async () => {
+  ecko.register("/test/endpoint/", "get", {
+    frequency: "always",
+    payload: "Response from request",
+  });
+
+  const response1 = await fetch(urlJoin(baseUrl, "/test/endpoint/"));
+
+  const body1 = await response1.text();
+
+  expect(response1.status).toBe(200);
+  expect(body1).toBe("Response from request");
+
+  const response2 = await fetch(urlJoin(baseUrl, "/test/endpoint"));
+
+  const body2 = await response2.text();
+
+  expect(response2.status).toBe(200);
+  expect(body2).toBe("Response from request");
+});
+
 test("Should register a POST endpoint and respond.", async () => {
   ecko.register("/path/to/endpoint", "post", {
     frequency: "always",
